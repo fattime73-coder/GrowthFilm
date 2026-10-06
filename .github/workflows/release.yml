@@ -1,0 +1,55 @@
+name: Build and Release macOS app
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (example: 0.2.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: swift test -c release
+
+      - name: Build
+        run: |
+          swift build -c release --product GrowthFilm
+          BIN_DIR="$(swift build -c release --show-bin-path)"
+          APP="dist/GrowthFilm.app"
+          rm -rf "$APP"
+          mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+          cp "$BIN_DIR/GrowthFilm" "$APP/Contents/MacOS/GrowthFilm"
+          cp Info.plist "$APP/Contents/Info.plist"
+          chmod +x "$APP/Contents/MacOS/GrowthFilm"
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --verbose "$APP"
+
+      - name: Package
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent "dist/GrowthFilm.app" "GrowthFilm-macOS.zip"
+          shasum -a 256 "GrowthFilm-macOS.zip" > "GrowthFilm-macOS.zip.sha256"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" GrowthFilm-macOS.zip GrowthFilm-macOS.zip.sha256 --clobber
+          else
+            gh release create "$TAG" GrowthFilm-macOS.zip GrowthFilm-macOS.zip.sha256 \
+              --target "${{ github.sha }}" \
+              --title "GrowthFilm $TAG" \
+              --generate-notes
+          fi
