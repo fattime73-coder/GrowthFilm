@@ -1,0 +1,12 @@
+.DS_Store
+.build/
+.swiftpm/
+dist/
+.app-stage.*/
+**/xcuserdata/
+client_secret*.json
+credentials*.json
+.env
+.env.*
+*.growthfilm/
+*.mp4

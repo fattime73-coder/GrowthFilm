@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "swift_syntax_files_passed": 9,
+  "shell_syntax": "passed",
+  "plist_validation": "passed",
+  "temporal_sampling_XCTest_cases_added": 7,
+  "macOS_build": "not_run_no_macOS_SDK",
+  "XCTest": "not_run_requires_swift_toolchain",
+  "google_account_integration": "not_run_by_agent"
+}
