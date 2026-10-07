@@ -10,3 +10,16 @@ credentials*.json
 .env.*
 *.growthfilm/
 *.mp4
+
+# Local Xcode state and private credentials
+*.xcuserstate
+DerivedData/
+*.xcscmblueprint
+*.xccheckout
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+secrets.json
+.netrc
